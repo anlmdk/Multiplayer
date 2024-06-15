@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using Photon.Pun;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,10 +12,18 @@ public class PlayerController : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private float speed = 5f;
+    [SerializeField] private float runSpeed = 10f;
     [SerializeField] private float rotationSpeed = 90f;
+    [SerializeField] private float jumpForce = 5f;
 
+    [Header("Components")]
     Rigidbody rb;
     Animator anim;
+    PhotonView view;
+
+    [Header("Bools")]
+    private bool isGrounded;
+    private bool isRunning;
 
     private void Awake()
     {
@@ -23,11 +31,17 @@ public class PlayerController : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
+        view = GetComponent<PhotonView>();
     }
 
     void Update()
     {
-        Movement();
+        if (view.IsMine)
+        {
+            Movement();
+            Jump();
+            Run();
+        }
     }
 
     private void Movement()
@@ -58,5 +72,52 @@ public class PlayerController : MonoBehaviour
         // Karakterin x ve y'deki hareketi ve hiza gore hareket animasyonu
 
         anim.SetFloat("Speed", rb.velocity.sqrMagnitude);
+    }
+    private void Jump()
+    {
+        // Zýplama kontrolü
+
+        if (inputHandler.GetJump() && isGrounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            isGrounded = false;
+
+            anim.SetBool("isJumping", true);
+        }
+    }
+    private void Run()
+    {
+        // Joystick ile kosma kontrolu
+
+        if (inputHandler.GetMovement().magnitude > 0.1f) 
+        {
+            isRunning = true;
+        }
+        else
+        {
+            isRunning = false;
+        }
+
+        // Klavye ile kosma kontrolu (Shift tuþu)
+
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            isRunning = true;
+        }
+        else
+        {
+            isRunning = false;
+        }
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        // Karakter yere carptiginda ziplama iznini geri ver
+
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            isGrounded = true;
+
+            anim.SetBool("isJumping", false);
+        }
     }
 }

@@ -12,9 +12,18 @@ public class CreateOrJoinRoom : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
-        PhotonNetwork.CreateRoom(createInput.text);
+        // Eger createInput null ise veya bos bir string ise uyarý ver
 
-        Debug.Log("Oda olusturuldu.");
+        if (createInput == null || string.IsNullOrWhiteSpace(createInput.text))
+        {
+            Debug.Log("Oda ismi girilmedi.");
+        }
+        else if (createInput != null)
+        {
+            PhotonNetwork.CreateRoom(createInput.text);
+
+            Debug.Log("Oda olusturuldu.");
+        }
     }
     public void JoinRoom()
     {
