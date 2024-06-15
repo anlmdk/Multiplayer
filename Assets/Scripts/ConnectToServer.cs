@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class ConnectToServer : MonoBehaviourPunCallbacks
 {
-    private void Start()
+    public void ConnectServer()
     {
         // Photon server'a baðlan
 
@@ -20,7 +20,7 @@ public class ConnectToServer : MonoBehaviourPunCallbacks
 
         PhotonNetwork.JoinLobby();
 
-        Debug.Log("Lobiye katýldý.");
+        Debug.Log("Lobiye katildi.");
     }
     public override void OnJoinedLobby()
     {
