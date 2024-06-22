@@ -53,6 +53,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Craft"",
+                    ""type"": ""Button"",
+                    ""id"": ""9ab9c9f5-c7c5-4b6b-99b2-f34f5f84a41e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -143,6 +152,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""Controller"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""30048370-78c4-4089-95f5-049ddc4c8d5d"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Craft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e649a28c-564a-48ae-83d5-5145cfa0709d"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Craft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -154,6 +185,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_Controller = m_Player.FindAction("Controller", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
+        m_Player_Craft = m_Player.FindAction("Craft", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -218,6 +250,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Controller;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Sprint;
+    private readonly InputAction m_Player_Craft;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -225,6 +258,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Controller => m_Wrapper.m_Player_Controller;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
+        public InputAction @Craft => m_Wrapper.m_Player_Craft;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -243,6 +277,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Sprint.started += instance.OnSprint;
             @Sprint.performed += instance.OnSprint;
             @Sprint.canceled += instance.OnSprint;
+            @Craft.started += instance.OnCraft;
+            @Craft.performed += instance.OnCraft;
+            @Craft.canceled += instance.OnCraft;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -256,6 +293,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Sprint.started -= instance.OnSprint;
             @Sprint.performed -= instance.OnSprint;
             @Sprint.canceled -= instance.OnSprint;
+            @Craft.started -= instance.OnCraft;
+            @Craft.performed -= instance.OnCraft;
+            @Craft.canceled -= instance.OnCraft;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -278,5 +318,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnController(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnSprint(InputAction.CallbackContext context);
+        void OnCraft(InputAction.CallbackContext context);
     }
 }
