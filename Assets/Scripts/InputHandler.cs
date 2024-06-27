@@ -1,6 +1,7 @@
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,9 +14,9 @@ public class InputHandler : MonoBehaviour
     private InputAction jumpAction;
     private InputAction runAction;
 
-
-    private InputAction craftMoveAction;
-    private InputAction craftDestroyAction;
+    private InputAction createObjectAction;
+    private InputAction carryObjectAction;
+    private InputAction destroyObjectAction;
 
     private void Awake()
     {
@@ -25,28 +26,24 @@ public class InputHandler : MonoBehaviour
         jumpAction = playerInput.Player.Jump;
         runAction = playerInput.Player.Sprint;
 
+        createObjectAction = playerInput.Player.Create;
+        carryObjectAction = playerInput.Player.PickUpDrop;
+        destroyObjectAction = playerInput.Player.Destroy;
 
-        //craftMoveAction = playerInput.Player.Craft.craft.MoveObject;
-        //craftDestroyAction = playerInput.Player.Craft.craft.DestroyObject;
-
-
-        // Input aksiyonlarý tanýmla
-
-        craftMoveAction.performed += ctx => craft.MoveObject();
-        craftDestroyAction.performed += ctx => craft.DestroyObject();
+        createObjectAction.performed += ctx => craft.CreateObject();
+        carryObjectAction.started += ctx => craft.PickUp();
+        carryObjectAction.canceled += ctx => craft.Drop();
+        destroyObjectAction.performed += ctx => craft.DestroyObject();
     }
 
     private void OnEnable()
     {
         playerInput.Player.Enable();
-        playerInput.Player.Craft.Enable();
     }
     private void OnDisable()
     {
         playerInput?.Player.Disable();
-        playerInput.Player.Craft.Disable();
     }
-
     public Vector2 GetMovement()
     {
         return movementAction.ReadValue<Vector2>();

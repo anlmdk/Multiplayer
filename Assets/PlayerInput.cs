@@ -55,9 +55,27 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Craft"",
+                    ""name"": ""Create"",
                     ""type"": ""Button"",
                     ""id"": ""9ab9c9f5-c7c5-4b6b-99b2-f34f5f84a41e"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Destroy"",
+                    ""type"": ""Button"",
+                    ""id"": ""2b5010a0-0361-4362-a58e-31630744ea1f"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""PickUp&Drop"",
+                    ""type"": ""Button"",
+                    ""id"": ""734695ab-57db-4aa0-9955-76477038a7c2"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -155,23 +173,34 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""30048370-78c4-4089-95f5-049ddc4c8d5d"",
+                    ""id"": ""2298391c-2f13-40fe-983e-41771c02381e"",
                     ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Craft"",
+                    ""action"": ""Create"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""e649a28c-564a-48ae-83d5-5145cfa0709d"",
+                    ""id"": ""25daf887-66d2-4109-92b4-4b01dce544bf"",
                     ""path"": ""<Keyboard>/r"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Craft"",
+                    ""action"": ""Destroy"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b2f097be-208e-4185-bb99-3f960c873e73"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""PickUp&Drop"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -185,7 +214,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_Controller = m_Player.FindAction("Controller", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
-        m_Player_Craft = m_Player.FindAction("Craft", throwIfNotFound: true);
+        m_Player_Create = m_Player.FindAction("Create", throwIfNotFound: true);
+        m_Player_Destroy = m_Player.FindAction("Destroy", throwIfNotFound: true);
+        m_Player_PickUpDrop = m_Player.FindAction("PickUp&Drop", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -250,7 +281,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Controller;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_Sprint;
-    private readonly InputAction m_Player_Craft;
+    private readonly InputAction m_Player_Create;
+    private readonly InputAction m_Player_Destroy;
+    private readonly InputAction m_Player_PickUpDrop;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -258,7 +291,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Controller => m_Wrapper.m_Player_Controller;
         public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
-        public InputAction @Craft => m_Wrapper.m_Player_Craft;
+        public InputAction @Create => m_Wrapper.m_Player_Create;
+        public InputAction @Destroy => m_Wrapper.m_Player_Destroy;
+        public InputAction @PickUpDrop => m_Wrapper.m_Player_PickUpDrop;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -277,9 +312,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Sprint.started += instance.OnSprint;
             @Sprint.performed += instance.OnSprint;
             @Sprint.canceled += instance.OnSprint;
-            @Craft.started += instance.OnCraft;
-            @Craft.performed += instance.OnCraft;
-            @Craft.canceled += instance.OnCraft;
+            @Create.started += instance.OnCreate;
+            @Create.performed += instance.OnCreate;
+            @Create.canceled += instance.OnCreate;
+            @Destroy.started += instance.OnDestroy;
+            @Destroy.performed += instance.OnDestroy;
+            @Destroy.canceled += instance.OnDestroy;
+            @PickUpDrop.started += instance.OnPickUpDrop;
+            @PickUpDrop.performed += instance.OnPickUpDrop;
+            @PickUpDrop.canceled += instance.OnPickUpDrop;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -293,9 +334,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Sprint.started -= instance.OnSprint;
             @Sprint.performed -= instance.OnSprint;
             @Sprint.canceled -= instance.OnSprint;
-            @Craft.started -= instance.OnCraft;
-            @Craft.performed -= instance.OnCraft;
-            @Craft.canceled -= instance.OnCraft;
+            @Create.started -= instance.OnCreate;
+            @Create.performed -= instance.OnCreate;
+            @Create.canceled -= instance.OnCreate;
+            @Destroy.started -= instance.OnDestroy;
+            @Destroy.performed -= instance.OnDestroy;
+            @Destroy.canceled -= instance.OnDestroy;
+            @PickUpDrop.started -= instance.OnPickUpDrop;
+            @PickUpDrop.performed -= instance.OnPickUpDrop;
+            @PickUpDrop.canceled -= instance.OnPickUpDrop;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -318,6 +365,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnController(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnSprint(InputAction.CallbackContext context);
-        void OnCraft(InputAction.CallbackContext context);
+        void OnCreate(InputAction.CallbackContext context);
+        void OnDestroy(InputAction.CallbackContext context);
+        void OnPickUpDrop(InputAction.CallbackContext context);
     }
 }

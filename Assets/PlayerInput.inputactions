@@ -33,9 +33,27 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Craft",
+                    "name": "Create",
                     "type": "Button",
                     "id": "9ab9c9f5-c7c5-4b6b-99b2-f34f5f84a41e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Destroy",
+                    "type": "Button",
+                    "id": "2b5010a0-0361-4362-a58e-31630744ea1f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PickUp&Drop",
+                    "type": "Button",
+                    "id": "734695ab-57db-4aa0-9955-76477038a7c2",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -133,23 +151,34 @@
                 },
                 {
                     "name": "",
-                    "id": "30048370-78c4-4089-95f5-049ddc4c8d5d",
+                    "id": "2298391c-2f13-40fe-983e-41771c02381e",
                     "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Craft",
+                    "action": "Create",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "e649a28c-564a-48ae-83d5-5145cfa0709d",
+                    "id": "25daf887-66d2-4109-92b4-4b01dce544bf",
                     "path": "<Keyboard>/r",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Craft",
+                    "action": "Destroy",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b2f097be-208e-4185-bb99-3f960c873e73",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PickUp&Drop",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

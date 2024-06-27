@@ -5,14 +5,15 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ground
+  - Pickable
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
-  - 
+  - Pickable
   - 
   - 
   - 

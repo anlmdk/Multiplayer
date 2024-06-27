@@ -5,15 +5,15 @@ using Photon.Pun;
 
 public class PlayerController : MonoBehaviour
 {
-    public static PlayerController instance { get; private set; }
+    public static PlayerController instance { get; set; }
 
     [Header("References")]
     [SerializeField] private InputHandler inputHandler;
 
     [Header("Settings")]
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private float runSpeed = 10f;
-    [SerializeField] private float rotationSpeed = 90f;
+    [SerializeField] private float walkSpeed = 2f;
+    [SerializeField] private float runSpeed = 6f;
+    [SerializeField] private float rotationSpeed = 4f;
     [SerializeField] private float jumpForce = 5f;
 
     [Header("Components")]
@@ -28,7 +28,9 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         instance = this;
-
+    }
+    private void Start()
+    {
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
         view = GetComponent<PhotonView>();
@@ -40,7 +42,6 @@ public class PlayerController : MonoBehaviour
         {
             Movement();
             Jump();
-            Run();
         }
     }
 
@@ -60,18 +61,19 @@ public class PlayerController : MonoBehaviour
         {
             float targetRotation = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
             Quaternion targetRotationQuaternion = Quaternion.Euler(0, targetRotation, 0);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotationQuaternion, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotationQuaternion, rotationSpeed * Time.deltaTime);
         }
 
-        // Karakterin hareketi
+        // Koþma kontrolü
+        isRunning = inputHandler.GetRun();
 
-        Vector3 movement = moveDirection * speed;
+        // Hareket animasyonu
+        anim.SetFloat("Speed", moveDirection.magnitude);
+        anim.SetBool("isRunning", isRunning);
+
+        // Hareket et
+        Vector3 movement = moveDirection * (isRunning ? runSpeed : walkSpeed);
         rb.velocity = new Vector3(movement.x, rb.velocity.y, movement.z);
-
-
-        // Karakterin x ve y'deki hareketi ve hiza gore hareket animasyonu
-
-        anim.SetFloat("Speed", rb.velocity.sqrMagnitude);
     }
     private void Jump()
     {
@@ -85,39 +87,9 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("isJumping", true);
         }
     }
-    private void Run()
+    public void OnGroundCollisionEnter()
     {
-        // Joystick ile kosma kontrolu
-
-        if (inputHandler.GetMovement().magnitude > 0.1f) 
-        {
-            isRunning = true;
-        }
-        else
-        {
-            isRunning = false;
-        }
-
-        // Klavye ile kosma kontrolu (Shift tuþu)
-
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            isRunning = true;
-        }
-        else
-        {
-            isRunning = false;
-        }
-    }
-    private void OnCollisionEnter(Collision collision)
-    {
-        // Karakter yere carptiginda ziplama iznini geri ver
-
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-
-            anim.SetBool("isJumping", false);
-        }
+        isGrounded = true;
+        anim.SetBool("isJumping", false);
     }
 }
