@@ -7,8 +7,9 @@ using UnityEngine.InputSystem;
 
 public class InputHandler : MonoBehaviour
 {
+    [Header("References")]
     private PlayerInput playerInput;
-    public Craft craft;
+    private Craft craft;
 
     private InputAction movementAction;
     private InputAction jumpAction;
@@ -18,9 +19,13 @@ public class InputHandler : MonoBehaviour
     private InputAction carryObjectAction;
     private InputAction destroyObjectAction;
 
+    private InputAction handShakeAction;
+
     private void Awake()
     {
         playerInput = new PlayerInput();
+
+        craft = GetComponent<Craft>();
 
         movementAction = playerInput.Player.Controller;
         jumpAction = playerInput.Player.Jump;
@@ -29,6 +34,8 @@ public class InputHandler : MonoBehaviour
         createObjectAction = playerInput.Player.Create;
         carryObjectAction = playerInput.Player.PickUpDrop;
         destroyObjectAction = playerInput.Player.Destroy;
+
+        handShakeAction = playerInput.Player.HandShake;
 
         createObjectAction.performed += ctx => craft.CreateObject();
         carryObjectAction.started += ctx => craft.PickUp();
@@ -55,5 +62,9 @@ public class InputHandler : MonoBehaviour
     public bool GetRun()
     {
         return runAction.ReadValue<float>() > 0.1f;
+    }
+    public bool GetHandShake()
+    {
+        return handShakeAction.triggered;
     }
 }

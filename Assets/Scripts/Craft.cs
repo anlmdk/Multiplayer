@@ -3,85 +3,154 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public class Craft : MonoBehaviour
+public class Craft : MonoBehaviourPunCallbacks
 {
+    [Header("References")]
+    PhotonView view;
+    private PlayerController playerController;
+
     [Header("Create")]
     public GameObject objectToCreate; 
-    public GameObject particleEffect; 
+    public GameObject particleEffect;
+    GameObject particle;
     public Transform spawnPoint;
+    
 
     [Header("Pick Up & Drop")]
     public Camera cam;
     [SerializeField] private GameObject heldObject;
     public Transform playerHandTransform;
-    public float range = 2f;
-    public Vector3 raycastOffset = new Vector3(0, -0.5f, 0);
+    public float range = 5f;
+    public Vector3 raycastOffset = new Vector3(0, -0.1f, 0);
     public LayerMask pickupLayerMask;
 
 
-    private void Update()
+    private void Start()
     {
-        HoldObject();
+        view = GetComponent<PhotonView>();
+        playerController = GetComponent<PlayerController>();
 
+        if (view == null)
+        {
+            Debug.LogError("PhotonView bileþeni bulunamadý!");
+        }
     }
     public void CreateObject()
     {
-        // Eðer þu anda bir nesne taþýyorsak veya raycast bir nesneye çarpýyorsa, yeni obje oluþturma
-        if (heldObject == null && !IsRaycastHittingObject())
+        if (view.IsMine)
         {
-            if (objectToCreate != null && spawnPoint != null)
+            // Eðer þu anda bir nesne taþýyorsak veya raycast bir nesneye çarpýyorsa, yeni obje oluþturma
+            if (heldObject == null && !IsRaycastHittingObject())
             {
-                // Obje oluþturma iþlemi
-                GameObject newObject = PhotonNetwork.Instantiate(objectToCreate.name, spawnPoint.position, spawnPoint.rotation);
+                if (objectToCreate != null && spawnPoint != null)
+                {
+                    // Obje oluþturma iþlemi
+                    GameObject newObject = PhotonNetwork.Instantiate(objectToCreate.name, spawnPoint.position, spawnPoint.rotation);
 
-                // Obje oluþturulduðunda partikül efektini göster
-                ShowParticleEffect(spawnPoint.position);
+                    // Obje oluþturulduðunda partikül efektini göster
+                    ShowParticleEffect(spawnPoint.position);
+
+                    StartCoroutine(DestroyParticle());
+                }
             }
         }
     }
     public void PickUp()
     {
-        RaycastHit hit;
-        Vector3 raycastOrigin = cam.transform.position + raycastOffset; // Iþýný daha aþaðýdan göndermek için pozisyonu ayarla
-        Debug.Log("Raycast gönderiliyor...");
-        if (Physics.Raycast(raycastOrigin, cam.transform.forward, out hit, range, pickupLayerMask))
+        if(view.IsMine)
         {
-            Debug.Log("Raycast çarptý: " + hit.collider.name);
-            // Sadece taþýnabilir nesnelere raycast yap
-            if (heldObject == null)
+            RaycastHit hit;
+            Vector3 raycastOrigin = cam.transform.position + raycastOffset;
+            Debug.Log("Raycast gönderiliyor...");
+            if (Physics.Raycast(raycastOrigin, cam.transform.forward, out hit, range, pickupLayerMask))
             {
-                heldObject = hit.collider.gameObject; // Nesneyi raycast'in çarptýðý nesne olarak güncelle
+                Debug.Log("Raycast çarptý: " + hit.collider.name);
 
-                Debug.Log("Nesne alýndý: " + heldObject.name);
-                heldObject.transform.SetParent(playerHandTransform); // Nesneyi playerHandTransform altýna ekle
-                heldObject.transform.localPosition = Vector3.zero; // Nesnenin pozisyonunu sýfýrla
-                Rigidbody rb = heldObject.GetComponent<Rigidbody>();
-                if (rb != null)
+                if (heldObject == null)
                 {
-                    rb.isKinematic = true; // Nesnenin fiziðini kapat
-                    rb.useGravity = false; // Yer çekimini kapat
+                    view.RPC("SetIsPickingUpAnimationRPC", RpcTarget.All);
+                    heldObject = hit.collider.gameObject;
+
+                    Debug.Log("Nesne alýndý: " + heldObject.name);
+                    heldObject.transform.SetParent(playerHandTransform);
+                    heldObject.transform.localPosition = Vector3.zero;
+                    Rigidbody rb = heldObject.GetComponent<Rigidbody>();
+                    if (rb != null)
+                    {
+                        rb.isKinematic = true;
+                        rb.useGravity = false;
+                    }
                 }
             }
-        }
-        else
-        {
-            Debug.Log("Raycast hiçbir þeye çarpmadý.");
+            else
+            {
+                Debug.Log("Raycast hiçbir þeye çarpmadý.");
+            }
         }
     }
     public void Drop()
     {
-        if (heldObject != null)
+        if (view.IsMine)
         {
-            // Obje býrakma iþlemi
-            heldObject.transform.SetParent(null);
-            Rigidbody rb = heldObject.GetComponent<Rigidbody>();
-            if (rb != null)
+            if (heldObject != null)
             {
-                rb.isKinematic = false; // Nesnenin fiziðini aç
-                rb.useGravity = true; // Yer çekimini aç
+                view.RPC("SetIsPickingUpAnimationRPC", RpcTarget.All);
+
+                heldObject.transform.SetParent(null);
+                Rigidbody rb = heldObject.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.isKinematic = false;
+                    rb.useGravity = true;
+                }
+                heldObject = null;
             }
-            heldObject = null;
+        }
+    }
+    public void DestroyObject()
+    {
+        if(view.IsMine)
+        {
+            RaycastHit hit;
+            Vector3 raycastOrigin = cam.transform.position + raycastOffset;
+            if (Physics.Raycast(raycastOrigin, cam.transform.forward, out hit, range, pickupLayerMask))
+            {
+                GameObject hitObject = hit.collider.gameObject;
+                if (hitObject != heldObject)
+                {
+                    Debug.Log("Raycast ile vurulan nesne: " + hitObject.name);
+
+                    // PhotonNetwork ile sadece kendi objemizi kontrol ederek yok ediyoruz
+                    if (hitObject.GetComponent<PhotonView>().IsMine)
+                    {
+                        // Obje yok edilmeden önce partikül efektini göster
+                        ShowParticleEffect(hitObject.transform.position);
+
+                        // PhotonNetwork ile objeyi yok et
+                        PhotonNetwork.Destroy(hitObject);
+
+                        StartCoroutine(DestroyParticle());
+                    }
+                }
+            }
+        }
+    }
+    [PunRPC]
+    public void SetIsPickingUpAnimationRPC()
+    {
+        playerController.anim.SetTrigger("isPickingUp");
+    }
+    private bool IsRaycastHittingObject()
+    {
+        RaycastHit hit;
+        Vector3 raycastOrigin = cam.transform.position + raycastOffset;
+        return Physics.Raycast(raycastOrigin, cam.transform.forward, out hit, range, pickupLayerMask);
+    }
+    private void ShowParticleEffect(Vector3 position)
+    {
+        if (particleEffect != null)
+        {
+            particle = Instantiate(particleEffect, position, Quaternion.identity);
         }
     }
     private void OnDrawGizmosSelected()
@@ -98,57 +167,9 @@ public class Craft : MonoBehaviour
         // Raycast'ý çiz
         Gizmos.DrawRay(characterEyePosition, characterEyeForwardDirection * range);
     }
-    public void DestroyObject()
+    private IEnumerator DestroyParticle()
     {
-        RaycastHit hit;
-        Vector3 raycastOrigin = cam.transform.position + raycastOffset;
-        if (Physics.Raycast(raycastOrigin, cam.transform.forward, out hit, range, pickupLayerMask))
-        {
-            GameObject hitObject = hit.collider.gameObject;
-            if (hitObject != heldObject)
-            {
-                Debug.Log("Raycast ile vurulan nesne: " + hitObject.name);
-
-                // PhotonNetwork ile sadece kendi objemizi kontrol ederek yok ediyoruz
-                if (hitObject.GetComponent<PhotonView>().IsMine)
-                {
-                    // Obje yok edilmeden önce partikül efektini göster
-                    ShowParticleEffect(hitObject.transform.position);
-
-                    // PhotonNetwork ile objeyi yok et
-                    PhotonNetwork.Destroy(hitObject);
-                }
-            }
-        }
-    }
-    private void HoldObject()
-    {
-        // E tuþuna basýldýðýnda nesneyi al
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            if (heldObject == null)
-            {
-                CreateObject();
-            }
-            PickUp();
-        }
-        // E tuþunu býraktýðýnda nesneyi býrak
-        if (Input.GetKeyUp(KeyCode.E))
-        {
-            Drop();
-        }
-    }
-    private bool IsRaycastHittingObject()
-    {
-        RaycastHit hit;
-        Vector3 raycastOrigin = cam.transform.position + raycastOffset;
-        return Physics.Raycast(raycastOrigin, cam.transform.forward, out hit, range, pickupLayerMask);
-    }
-    private void ShowParticleEffect(Vector3 position)
-    {
-        if (particleEffect != null)
-        {
-            Instantiate(particleEffect, position, Quaternion.identity);
-        }
+        yield return new WaitForSeconds(2f);
+        Destroy(particle);
     }
 }

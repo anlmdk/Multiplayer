@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviourPunCallbacks
 {
-    public static PlayerController instance { get; set; }
-
     [Header("References")]
-    [SerializeField] private InputHandler inputHandler;
+    private InputHandler inputHandler;
+    private PlayerSetup setup;
+
+    [Header("Components")]
+    Rigidbody rb;
+    public Animator anim;
+    PhotonView view;
+    Vector3 moveDirection;
 
     [Header("Settings")]
     [SerializeField] private float walkSpeed = 2f;
@@ -16,80 +21,132 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float rotationSpeed = 4f;
     [SerializeField] private float jumpForce = 5f;
 
-    [Header("Components")]
-    Rigidbody rb;
-    Animator anim;
-    PhotonView view;
+    float horizontalInput;
+    float verticalInput;
 
     [Header("Bools")]
-    private bool isGrounded;
+    public  bool isGrounded = true;
     private bool isRunning;
+    private bool isHandShaking;
+    private bool isMovingBackwards;
 
-    private void Awake()
-    {
-        instance = this;
-    }
     private void Start()
     {
+        isGrounded = true;
+
+        inputHandler = GetComponent<InputHandler>();
+        setup = GetComponent<PlayerSetup>();
         rb = GetComponent<Rigidbody>();
-        anim = GetComponent<Animator>();
         view = GetComponent<PhotonView>();
     }
-
-    void Update()
+    private void Update()
     {
         if (view.IsMine)
         {
-            Movement();
-            Jump();
+            HandleJump();
+
+            if (inputHandler.GetHandShake() && !isHandShaking)
+            {
+                HandleHandShake();
+            }
         }
     }
-
-    private void Movement()
+    private void FixedUpdate()
+    {
+        if (view.IsMine && !isHandShaking)
+        {
+            HandleMovement();
+        }
+    }
+    private void HandleMovement()
     {
         // Movement input 
 
         Vector3 input = inputHandler.GetMovement();
 
-        // Hareket yönü
+        horizontalInput = input.x;
+        verticalInput = input.y;
 
-        Vector3 moveDirection = new Vector3(input.x, 0, input.y).normalized;
+        // Movement
+
+        moveDirection = setup.playerCamera.transform.forward * verticalInput;
+        moveDirection += setup.playerCamera.transform.right * horizontalInput;
+        moveDirection.Normalize();
+        moveDirection.y = 0;
+        moveDirection = moveDirection * walkSpeed;
+
+        // Geri hareket kontrolÃ¼
+        isMovingBackwards = verticalInput < 0;
+
+        // Run
+        isRunning = inputHandler.GetRun();
+
+        Vector3 movement = moveDirection * (isRunning ? runSpeed : walkSpeed);
+        rb.velocity = new Vector3(movement.x, rb.velocity.y, movement.z);
 
         // Karakterin saga ve sola donmesi
 
-        if (moveDirection.magnitude > 0.1f)
-        {
-            float targetRotation = Mathf.Atan2(moveDirection.x, moveDirection.z) * Mathf.Rad2Deg;
-            Quaternion targetRotationQuaternion = Quaternion.Euler(0, targetRotation, 0);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotationQuaternion, rotationSpeed * Time.deltaTime);
-        }
-
-        // Koþma kontrolü
-        isRunning = inputHandler.GetRun();
+        HandleRotation();
 
         // Hareket animasyonu
         anim.SetFloat("Speed", moveDirection.magnitude);
         anim.SetBool("isRunning", isRunning);
-
-        // Hareket et
-        Vector3 movement = moveDirection * (isRunning ? runSpeed : walkSpeed);
-        rb.velocity = new Vector3(movement.x, rb.velocity.y, movement.z);
     }
-    private void Jump()
+    public void HandleRotation()
     {
-        // Zýplama kontrolü
+        Vector3 targetDirection = Vector3.zero;
 
+        targetDirection = setup.playerCamera.transform.forward * verticalInput;
+        targetDirection += setup.playerCamera.transform.right * horizontalInput;
+        targetDirection.Normalize();
+        targetDirection.y = 0;
+
+        if (targetDirection == Vector3.zero)
+        {
+            targetDirection = transform.forward;
+        }
+
+        if (isMovingBackwards)
+        {
+            targetDirection = -targetDirection; // Geri giderken yÃ¶nÃ¼ tersine Ã§evir
+        }
+
+        Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+        Quaternion playerRotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+        transform.rotation = playerRotation;
+    }
+    private void HandleJump()
+    {
         if (inputHandler.GetJump() && isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGrounded = false;
-
-            anim.SetBool("isJumping", true);
         }
+    }
+    [PunRPC]
+    public void SetHandleShakeAnimationRPC()
+    {
+        anim.SetTrigger("handShake");
+    }
+    public void HandleHandShake()
+    {
+        isHandShaking = true;
+        view.RPC("SetHandleShakeAnimationRPC", RpcTarget.All);
+        StartCoroutine(EndHandShake());
+    }
+    private IEnumerator EndHandShake()
+    {
+        yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
+        isHandShaking = false;
     }
     public void OnGroundCollisionEnter()
     {
         isGrounded = true;
         anim.SetBool("isJumping", false);
+    }
+    public void OnGroundCollisionExit() 
+    {
+        isGrounded = false;
+        anim.SetBool("isJumping", true);
     }
 }

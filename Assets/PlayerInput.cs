@@ -80,13 +80,22 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""HandShake"",
+                    ""type"": ""Button"",
+                    ""id"": ""351dc9ce-d47f-4188-be7a-071094c303e2"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
                 {
                     ""name"": ""WASD"",
                     ""id"": ""101cfbb1-3c73-48cb-b4a6-c46e44b5a592"",
-                    ""path"": ""2DVector"",
+                    ""path"": ""2DVector(mode=2)"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -162,17 +171,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""9194eb3f-9430-4b13-8d4d-63e2253f7823"",
-                    ""path"": ""<Gamepad>/leftStick"",
-                    ""interactions"": ""Press(behavior=2)"",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Controller"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""2298391c-2f13-40fe-983e-41771c02381e"",
                     ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
@@ -196,11 +194,22 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""b2f097be-208e-4185-bb99-3f960c873e73"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/f"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""PickUp&Drop"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d9896518-e294-4fef-acaf-0e45e419de27"",
+                    ""path"": ""<Keyboard>/h"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""HandShake"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -217,6 +226,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_Create = m_Player.FindAction("Create", throwIfNotFound: true);
         m_Player_Destroy = m_Player.FindAction("Destroy", throwIfNotFound: true);
         m_Player_PickUpDrop = m_Player.FindAction("PickUp&Drop", throwIfNotFound: true);
+        m_Player_HandShake = m_Player.FindAction("HandShake", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -284,6 +294,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Create;
     private readonly InputAction m_Player_Destroy;
     private readonly InputAction m_Player_PickUpDrop;
+    private readonly InputAction m_Player_HandShake;
     public struct PlayerActions
     {
         private @PlayerInput m_Wrapper;
@@ -294,6 +305,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Create => m_Wrapper.m_Player_Create;
         public InputAction @Destroy => m_Wrapper.m_Player_Destroy;
         public InputAction @PickUpDrop => m_Wrapper.m_Player_PickUpDrop;
+        public InputAction @HandShake => m_Wrapper.m_Player_HandShake;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -321,6 +333,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @PickUpDrop.started += instance.OnPickUpDrop;
             @PickUpDrop.performed += instance.OnPickUpDrop;
             @PickUpDrop.canceled += instance.OnPickUpDrop;
+            @HandShake.started += instance.OnHandShake;
+            @HandShake.performed += instance.OnHandShake;
+            @HandShake.canceled += instance.OnHandShake;
         }
 
         private void UnregisterCallbacks(IPlayerActions instance)
@@ -343,6 +358,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @PickUpDrop.started -= instance.OnPickUpDrop;
             @PickUpDrop.performed -= instance.OnPickUpDrop;
             @PickUpDrop.canceled -= instance.OnPickUpDrop;
+            @HandShake.started -= instance.OnHandShake;
+            @HandShake.performed -= instance.OnHandShake;
+            @HandShake.canceled -= instance.OnHandShake;
         }
 
         public void RemoveCallbacks(IPlayerActions instance)
@@ -368,5 +386,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnCreate(InputAction.CallbackContext context);
         void OnDestroy(InputAction.CallbackContext context);
         void OnPickUpDrop(InputAction.CallbackContext context);
+        void OnHandShake(InputAction.CallbackContext context);
     }
 }

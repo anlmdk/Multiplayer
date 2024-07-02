@@ -58,13 +58,22 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "HandShake",
+                    "type": "Button",
+                    "id": "351dc9ce-d47f-4188-be7a-071094c303e2",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
                 {
                     "name": "WASD",
                     "id": "101cfbb1-3c73-48cb-b4a6-c46e44b5a592",
-                    "path": "2DVector",
+                    "path": "2DVector(mode=2)",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -140,17 +149,6 @@
                 },
                 {
                     "name": "",
-                    "id": "9194eb3f-9430-4b13-8d4d-63e2253f7823",
-                    "path": "<Gamepad>/leftStick",
-                    "interactions": "Press(behavior=2)",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Controller",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "2298391c-2f13-40fe-983e-41771c02381e",
                     "path": "<Keyboard>/e",
                     "interactions": "",
@@ -174,11 +172,22 @@
                 {
                     "name": "",
                     "id": "b2f097be-208e-4185-bb99-3f960c873e73",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/f",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "PickUp&Drop",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d9896518-e294-4fef-acaf-0e45e419de27",
+                    "path": "<Keyboard>/h",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "HandShake",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
