@@ -17,25 +17,28 @@ public class Settings : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            
+            DontDestroyOnLoad(transform.root.gameObject);
         }
         else
         {
             Destroy(this.gameObject);
-            DontDestroyOnLoad(gameObject);
         }
     }
 
     private void Start()
     {
-        musicSlider.value = 0.5f;
-        music.volume = musicSlider.value;
-        valueText.text = ((int)(musicSlider.value * 100)).ToString();
+        float savedVolume = PlayerPrefs.GetFloat("MusicVolume", 0.5f);
+
+        musicSlider.value = savedVolume;
+        music.volume = savedVolume;
+        valueText.text = ((int)(savedVolume * 100)).ToString();
     }
     public void OnSliderChanged (float volume)
     {
         music.volume = volume;
         int volumeInt = (int)(volume * 100);
         valueText.text = volumeInt.ToString();
+
+        PlayerPrefs.SetFloat("MusicVolume", volume);
     }
 }
