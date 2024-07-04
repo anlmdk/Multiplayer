@@ -3,38 +3,79 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using TMPro;
+using Photon.Realtime;
+using UnityEditor.VersionControl;
 
 public class CreateOrJoinRoom : MonoBehaviourPunCallbacks
 {
+    public static bool isRoomJoined = false;
+
     [SerializeField] private TMP_InputField createInput;
 
     [SerializeField] private TMP_InputField joinInput;
 
+    [SerializeField] private int maxPlayers = 4;
+
+    [SerializeField] private ErrorManager errorManager;
+
     public void CreateRoom()
     {
-        // Eger createInput null ise veya bos bir string ise uyarý ver
-
-        if (createInput == null || string.IsNullOrWhiteSpace(createInput.text))
+        // Oda ismi ve maksimum oyuncu sayýsýný belirtiyoruz
+        string roomName = createInput.text;
+        if (string.IsNullOrWhiteSpace(roomName))
         {
             Debug.Log("Oda ismi girilmedi.");
+            errorManager.ShowErrorMessage("Oda ismi girilmedi.");
+            return;
         }
-        else if (createInput != null)
-        {
-            PhotonNetwork.CreateRoom(createInput.text);
 
-            Debug.Log("Oda olusturuldu.");
-        }
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = maxPlayers;
+
+        PhotonNetwork.CreateRoom(roomName, roomOptions);
+        Debug.Log("Oda oluþturuldu: " + roomName);
     }
     public void JoinRoom()
     {
-        PhotonNetwork.JoinRoom(joinInput.text);
+        string roomName = joinInput.text;
+        if (string.IsNullOrWhiteSpace(roomName))
+        {
+            Debug.Log("Oda ismi girilmedi.");
+            errorManager.ShowErrorMessage("Oda ismi girilmedi.");
+            return;
+        }
 
-        Debug.Log("Odaya katýldý.");
+        PhotonNetwork.JoinRoom(roomName);
+        Debug.Log("Odaya katýlýnýyor: " + roomName);
     }
     public override void OnJoinedRoom()
     {
+        isRoomJoined = true;
+
         PhotonNetwork.LoadLevel("Game");
 
         Debug.Log("Oyuna katýldý.");
+    }
+    public void LeaveLobby()
+    {
+        PhotonNetwork.LeaveLobby();
+        Debug.Log("Lobiden çýkýlýyor...");
+        errorManager.ShowErrorMessage("Lobiden çýkýlýyor...");
+    }
+    public override void OnLeftLobby()
+    {
+        Debug.Log("Lobiden çýkýldý.");
+        PhotonNetwork.LoadLevel("MainMenu");
+    }
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        Debug.LogError("Oda oluþturulamadý: " + message);
+        errorManager.ShowErrorMessage("Oda oluþturulamadý.");
+    }
+
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        Debug.LogError("Oda mevcut deðil." + message);
+        errorManager.ShowErrorMessage("Oda mevcut deðil.");
     }
 }

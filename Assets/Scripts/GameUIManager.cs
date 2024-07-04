@@ -3,51 +3,84 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using TMPro;
+using Photon.Realtime;
 
 public class GameUIManager : MonoBehaviourPunCallbacks
 {
-    public Transform gamePanel; // gamePanel objesini burada tanýmlýyoruz
-    private int playerCount = 0;
+    public Transform gamePanel;
+    private static int playerCount = 0;
+
+    void Start()
+    {
+        if (PhotonNetwork.IsConnectedAndReady)
+        {
+            foreach (Player player in PhotonNetwork.PlayerList)
+            {
+                AddPlayerUI(player);
+            }
+        }
+        // UI pozisyonunu ayarla
+        RectTransform rectTransform = gamePanel.GetComponent<RectTransform>();
+        rectTransform.anchoredPosition = new Vector2(200, -100);
+    }
 
     public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
     {
         base.OnPlayerEnteredRoom(newPlayer);
-        AddPlayerUI(newPlayer);
+        foreach (Player player in PhotonNetwork.PlayerList)
+        {
+            AddPlayerUI(player);
+        }
     }
 
     private void AddPlayerUI(Photon.Realtime.Player player)
     {
-        // PlayerText prefab'ýný Resources klasöründen yükle
-        GameObject playerInfoPrefab = Resources.Load<GameObject>("Assets/Resources/PlayerIDText.prefab");
+        // PlayerUI prefab'ýný Resources klasöründen yükle
+        GameObject playerUIInstance = Resources.Load<GameObject>("PlayerUI");
 
-        if (playerInfoPrefab != null)
+        // Prefab yüklendi mi kontrol et
+        if (playerUIInstance == null)
         {
-            // Yeni PlayerText prefab'ýný gamePanel altýnda instantiate et
-            GameObject playerInfoInstance = Instantiate(playerInfoPrefab, gamePanel);
-
-            // Pozisyonunu ayarla
-            RectTransform rectTransform = playerInfoInstance.GetComponent<RectTransform>();
-
-            // anchoredPosition kullanarak pozisyonu ayarlýyoruz
-            rectTransform.anchoredPosition = new Vector2(playerCount * 200, 0);
-
-            // Boyutlarýný ve pivot ayarlarýný kontrol edelim
-            rectTransform.sizeDelta = new Vector2(200, 50); // Boyutlarý ayarlayabilirsiniz
-            rectTransform.pivot = new Vector2(0.5f, 0.5f); // Pivot noktasý ortada
-
-            // Player ID ve Coin Text'lerini ayarla
-            TMP_Text playerIDText = playerInfoInstance.transform.Find("PlayerIDText").GetComponent<TMP_Text>();
-            TMP_Text coinText = playerInfoInstance.transform.Find("CoinText").GetComponent<TMP_Text>();
-            playerIDText.text = "Player " + player.ActorNumber; // Oyuncunun ID'si veya ismi
-
-            // Gerekirse coinText ayarlarýný da burada yapabilirsiniz
-            coinText.text = "0";
-
-            playerCount++;
+            Debug.LogError("playerUI prefab could not be loaded from Resources.");
+            return;
         }
-        else
+
+        // gamePanel atandý mý kontrol et
+        if (gamePanel == null)
         {
-            Debug.LogError("PlayerText prefab could not be loaded from Resources.");
+            Debug.LogError("gamePanel is not assigned.");
+            return;
         }
+
+        // Yeni PlayerUI prefab'ýný gamePanel altýnda instantiate et
+        GameObject playerUI = Instantiate(playerUIInstance, gamePanel);
+
+        RectTransform rectTransform = playerUI.GetComponent<RectTransform>();
+
+        rectTransform.anchoredPosition = new Vector2(playerCount * 200, 0);
+
+        rectTransform.sizeDelta = new Vector2(200, 50); // Boyutlarý ayarlayabilirsiniz
+        rectTransform.pivot = new Vector2(0.5f, 0.5f); // Pivot noktasý ortada
+
+        TMP_Text playerIDText = playerUI.transform.Find("PlayerIDText").GetComponent<TMP_Text>();
+        TMP_Text coinText = playerUI.transform.Find("PlayerIDText/CoinText").GetComponent<TMP_Text>();
+
+        // playerIDText veya coinText null mý kontrol et
+        if (playerIDText == null)
+        {
+            Debug.LogError("PlayerIDText component could not be found in the playerUI prefab.");
+            return;
+        }
+        if (coinText == null)
+        {
+            Debug.LogError("CoinText component could not be found in the playerUI prefab.");
+            return;
+        }
+
+        playerIDText.text = "Player " + player.ActorNumber; // Oyuncunun ID'si veya ismi
+
+        coinText.text = "0";
+
+        playerCount++;
     }
 }
