@@ -9,38 +9,53 @@ public class InputHandler : MonoBehaviour
 {
     [Header("References")]
     private PlayerInput playerInput;
-    private Craft craft;
+    private PickUpAndDrop pickUpAndDrop;
+    private CreateAndDestroy createAndDestroy;
 
     private InputAction movementAction;
     private InputAction jumpAction;
     private InputAction runAction;
 
     private InputAction createObjectAction;
-    private InputAction carryObjectAction;
+    private InputAction pickUpOrDropObjectAction;
     private InputAction destroyObjectAction;
 
     private InputAction handShakeAction;
+
+    private bool isPickUpOrDropObject = false;
 
     private void Awake()
     {
         playerInput = new PlayerInput();
 
-        craft = GetComponent<Craft>();
+        createAndDestroy = GetComponent<CreateAndDestroy>();
+        pickUpAndDrop = GetComponent<PickUpAndDrop>();
 
         movementAction = playerInput.Player.Controller;
         jumpAction = playerInput.Player.Jump;
         runAction = playerInput.Player.Sprint;
 
         createObjectAction = playerInput.Player.Create;
-        carryObjectAction = playerInput.Player.PickUpDrop;
+        pickUpOrDropObjectAction = playerInput.Player.PickUpDrop;
         destroyObjectAction = playerInput.Player.Destroy;
 
         handShakeAction = playerInput.Player.HandShake;
 
-        createObjectAction.performed += ctx => craft.CreateObject();
-        carryObjectAction.started += ctx => craft.PickUp();
-        carryObjectAction.canceled += ctx => craft.Drop();
-        destroyObjectAction.performed += ctx => craft.DestroyObject();
+        createObjectAction.performed += ctx => createAndDestroy.CreateObject();
+        destroyObjectAction.performed += ctx => createAndDestroy.DestroyObject();
+        pickUpOrDropObjectAction.performed += ctx =>
+        {
+            if (!isPickUpOrDropObject)
+            {
+                pickUpAndDrop.PickUp();
+                isPickUpOrDropObject= true;
+            }
+            else
+            {
+                pickUpAndDrop.Drop();
+                isPickUpOrDropObject = false;
+            }
+        };
     }
 
     private void OnEnable()

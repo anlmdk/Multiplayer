@@ -44,6 +44,11 @@ MonoBehaviour:
   - SetIsPickingUpAnimationRPC
   - SetIsJumpingAnimationPRC
   - UpdateScoreOnNetwork
+  - RPC_CreateObject
+  - RPC_DestroyObject
+  - RPC_Drop
+  - RPC_PickUp
+  - RPC_AddScore
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

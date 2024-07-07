@@ -395,7 +395,10 @@ PrefabInstance:
       addedObject: {fileID: 7481215693864357984}
     - targetCorrespondingSourceObject: {fileID: 187904287186049807, guid: d674b564acadde849a2cd28ce63525a8, type: 3}
       insertIndex: -1
-      addedObject: {fileID: -3576033665754428392}
+      addedObject: {fileID: 5538823617168645063}
+    - targetCorrespondingSourceObject: {fileID: 187904287186049807, guid: d674b564acadde849a2cd28ce63525a8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5102336816637545295}
     - targetCorrespondingSourceObject: {fileID: 187904287186049807, guid: d674b564acadde849a2cd28ce63525a8, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7026276650739452770}
@@ -491,6 +494,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 1272792836735510515}
+  score: 0
 --- !u!114 &8539325246369491541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -521,7 +525,31 @@ MonoBehaviour:
   rotationSpeed: 4
   jumpForce: 7
   isGrounded: 0
---- !u!114 &-3576033665754428392
+--- !u!114 &5538823617168645063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2067133770403741139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1964b5fe35886d146aec7900d2459efd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToCreate: {fileID: 2433877126880997515, guid: 0f50851ccca4be84e80892fe0ad4a80e, type: 3}
+  particleEffect: {fileID: 1278318313060954746, guid: 3aa84a97104ebd64b85b65def61eaa32, type: 3}
+  spawnPoint: {fileID: 2905343554749376015}
+  cam: {fileID: 2002948039275654548}
+  range: 5
+  raycastOffset: {x: 0, y: -0.1, z: 0}
+  destroyLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  isInCreateZone: 0
+  isInDestroyZone: 0
+  pickUpAndDropScript: {fileID: 5102336816637545295}
+--- !u!114 &5102336816637545295
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -533,9 +561,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ffb9afed5d138bf43abaf895918ac70b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectToCreate: {fileID: 2433877126880997515, guid: 0f50851ccca4be84e80892fe0ad4a80e, type: 3}
-  particleEffect: {fileID: 1278318313060954746, guid: 3aa84a97104ebd64b85b65def61eaa32, type: 3}
-  spawnPoint: {fileID: 2905343554749376015}
   cam: {fileID: 2002948039275654548}
   heldObject: {fileID: 0}
   playerHandTransform: {fileID: 67113730170872294}
@@ -563,6 +588,7 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
+  - {fileID: 5102336816637545295}
   - {fileID: 8552460091804039805}
   - {fileID: 4393444479109597532}
   sceneViewId: 0

@@ -8,7 +8,12 @@ using Photon.Realtime;
 public class GameUIManager : MonoBehaviourPunCallbacks
 {
     public Transform gamePanel;
+
     private static int playerCount = 0;
+
+    private Dictionary<int, GameObject> playerUIDictionary = new Dictionary<int, GameObject>();
+
+    float xPosition;
 
     void Start()
     {
@@ -16,71 +21,87 @@ public class GameUIManager : MonoBehaviourPunCallbacks
         {
             foreach (Player player in PhotonNetwork.PlayerList)
             {
-                AddPlayerUI(player);
+                CreatePlayerUI(player.ActorNumber, player.NickName);
             }
         }
-        // UI pozisyonunu ayarla
-        RectTransform rectTransform = gamePanel.GetComponent<RectTransform>();
-        rectTransform.anchoredPosition = new Vector2(200, -100);
     }
 
-    public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
+    public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         base.OnPlayerEnteredRoom(newPlayer);
-        foreach (Player player in PhotonNetwork.PlayerList)
-        {
-            AddPlayerUI(player);
-        }
+        CreatePlayerUI(newPlayer.ActorNumber, newPlayer.NickName);
     }
 
-    private void AddPlayerUI(Photon.Realtime.Player player)
+    public void CreatePlayerUI(int playerID, string playerName)
     {
-        // PlayerUI prefab'ýný Resources klasöründen yükle
+        if (playerUIDictionary.ContainsKey(playerID))
+        {
+            Debug.LogWarning($"Player UI for player {playerID} is already created.");
+            return;
+        }
+
         GameObject playerUIInstance = Resources.Load<GameObject>("PlayerUI");
 
-        // Prefab yüklendi mi kontrol et
         if (playerUIInstance == null)
         {
             Debug.LogError("playerUI prefab could not be loaded from Resources.");
             return;
         }
 
-        // gamePanel atandý mý kontrol et
         if (gamePanel == null)
         {
             Debug.LogError("gamePanel is not assigned.");
             return;
         }
 
-        // Yeni PlayerUI prefab'ýný gamePanel altýnda instantiate et
         GameObject playerUI = Instantiate(playerUIInstance, gamePanel);
-
         RectTransform rectTransform = playerUI.GetComponent<RectTransform>();
 
-        rectTransform.anchoredPosition = new Vector2(playerCount * 200, 0);
+        if (playerCount == 0)
+        {
+            rectTransform.anchoredPosition = new Vector2(200, -100);
+            xPosition = rectTransform.anchoredPosition.x;
+        }
+        else
+        {
+            rectTransform.anchoredPosition = new Vector2(xPosition + 200, -100);
+        }
 
-        rectTransform.sizeDelta = new Vector2(200, 50); // Boyutlarý ayarlayabilirsiniz
-        rectTransform.pivot = new Vector2(0.5f, 0.5f); // Pivot noktasý ortada
+        rectTransform.sizeDelta = new Vector2(200, 50);
+        rectTransform.pivot = new Vector2(0.5f, 0.5f);
 
         TMP_Text playerIDText = playerUI.transform.Find("PlayerIDText").GetComponent<TMP_Text>();
-        TMP_Text coinText = playerUI.transform.Find("PlayerIDText/CoinText").GetComponent<TMP_Text>();
+        TMP_Text scoreText = playerUI.transform.Find("PlayerIDText/ScoreText").GetComponent<TMP_Text>();
 
-        // playerIDText veya coinText null mý kontrol et
         if (playerIDText == null)
         {
             Debug.LogError("PlayerIDText component could not be found in the playerUI prefab.");
             return;
         }
-        if (coinText == null)
+        if (scoreText == null)
         {
-            Debug.LogError("CoinText component could not be found in the playerUI prefab.");
+            Debug.LogError("ScoreText component could not be found in the playerUI prefab.");
             return;
         }
 
-        playerIDText.text = "Player " + player.ActorNumber; // Oyuncunun ID'si veya ismi
+        playerIDText.text = "Player " + playerID; 
+        scoreText.text = "0";
 
-        coinText.text = "0";
-
+        playerUIDictionary.Add(playerID, playerUI);
         playerCount++;
+    }
+
+    public void UpdatePlayerScore(int playerID, int score)
+    {
+        if (playerUIDictionary.ContainsKey(playerID))
+        {
+            GameObject playerUI = playerUIDictionary[playerID];
+            TMP_Text scoreText = playerUI.transform.Find("PlayerIDText/ScoreText").GetComponent<TMP_Text>();
+
+            if (scoreText != null)
+            {
+                scoreText.text = score.ToString();
+            }
+        }
     }
 }
