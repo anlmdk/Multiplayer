@@ -10,9 +10,13 @@ Max player: 4 on server
 Cotroller PC
 
 Walk       (W-A-S-D)
-HandShake  (H)         
-Create     (E)         
+
+HandShake  (H)      
+
+Create     (E) 
+
 Destroy    (R) 
+
 Pick Up & Drop (F)
 
 I used to Unity version 2022.3.18f1
