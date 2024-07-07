@@ -1,31 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
 
 public class ConnectToServer : MonoBehaviourPunCallbacks
 {
+    // Photon server'a baglan
     public void ConnectServer()
     {
-        // Photon server'a baðlan
-
         PhotonNetwork.ConnectUsingSettings();
 
         Debug.Log("Server'a baglandi.");
     }
+
+    // Baglanti basarili ise lobiye katil
     public override void OnConnectedToMaster()
     {
-        // Baglanti basarili ise lobiye katil
-
         PhotonNetwork.JoinLobby();
 
         Debug.Log("Lobiye katildi.");
     }
+
+    // Lobiye baglanti basarili ise lobby sahnesini yukle
     public override void OnJoinedLobby()
     {
-        // Lobiye baglanti basarili ise lobby sahnesini yukle
-
         SceneManager.LoadScene("Lobby");
 
         Debug.Log("Lobi sahnesine gecti.");

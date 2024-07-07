@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
-using Photon.Realtime;
 
 public class CreateAndDestroy : MonoBehaviourPunCallbacks
 {
@@ -26,9 +24,10 @@ public class CreateAndDestroy : MonoBehaviourPunCallbacks
     private void Start()
     {
         view = GetComponent<PhotonView>();
+
         if (view == null)
         {
-            Debug.LogError("PhotonView bileþeni bulunamadý!");
+            Debug.LogError("PhotonView bileseni bulunamadi.");
         }
     }
 
@@ -66,13 +65,17 @@ public class CreateAndDestroy : MonoBehaviourPunCallbacks
                 Vector3 position = spawnPoint.position;
                 Quaternion rotation = spawnPoint.rotation;
                 GameObject newObject = PhotonNetwork.Instantiate(objectToCreate.name, position, rotation);
+
                 PhotonView newObjectView = newObject.GetComponent<PhotonView>();
+
                 if (newObjectView != null)
                 {
                     pickUpAndDropScript.AddObjectToPickableList(newObjectView.ViewID); // ViewID'yi PickUpAndDrop scriptine gönder
                 }
+
                 ShowParticleEffect(position);
                 StartCoroutine(DestroyParticle());
+
                 view.RPC("RPC_CreateObject", RpcTarget.OthersBuffered, newObjectView.ViewID, position, rotation);
             }
         }
@@ -88,12 +91,14 @@ public class CreateAndDestroy : MonoBehaviourPunCallbacks
             GameObject newObject = PhotonNetwork.Instantiate(objectToCreate.name, position, rotation);
             newObjectView = newObject.GetComponent<PhotonView>();
         }
+
         ShowParticleEffect(position);
         StartCoroutine(DestroyParticle());
 
         if (newObjectView != null)
         {
-            pickUpAndDropScript.AddObjectToPickableList(newObjectView.ViewID); // ViewID'yi PickUpAndDrop scriptine gönder
+            // ViewID'yi PickUpAndDrop scriptine gonder
+            pickUpAndDropScript.AddObjectToPickableList(newObjectView.ViewID); 
         }
     }
 
@@ -117,12 +122,12 @@ public class CreateAndDestroy : MonoBehaviourPunCallbacks
                     }
                     else
                     {
-                        Debug.LogWarning("Hedef nesne PhotonView bileþenine sahip deðil veya sahibi siz deðilsiniz.");
+                        Debug.LogWarning("Hedef nesne PhotonView bilesenine sahip degil veya sahibi siz degilsiniz.");
                     }
                 }
                 else
                 {
-                    Debug.LogWarning("Raycast bir nesneye çarpmadý.");
+                    Debug.LogWarning("Raycast bir nesneye carpmadi.");
                 }
             }
         }
@@ -146,12 +151,12 @@ public class CreateAndDestroy : MonoBehaviourPunCallbacks
             }
             else
             {
-                Debug.LogWarning("Belirtilen ViewID'ye sahip nesne bulunamadý.");
+                Debug.LogWarning("Belirtilen ViewID'ye sahip nesne bulunamadi.");
             }
         }
         else
         {
-            Debug.LogWarning("Belirtilen ViewID'ye sahip PhotonView bulunamadý.");
+            Debug.LogWarning("Belirtilen ViewID'ye sahip PhotonView bulunamadi.");
         }
     }
 
@@ -174,13 +179,14 @@ public class CreateAndDestroy : MonoBehaviourPunCallbacks
         if (view.IsMine)
         {
             PlayerSetup player = GetComponent<PlayerSetup>();
+
             if (player != null)
             {
                 player.AddScore(1);
             }
             else
             {
-                Debug.LogWarning("Player bileþeni bulunamadý.");
+                Debug.LogWarning("Player bileseni bulunamadi.");
             }
         }
     }

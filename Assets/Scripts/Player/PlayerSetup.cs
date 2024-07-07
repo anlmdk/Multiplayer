@@ -1,24 +1,23 @@
 using Photon.Pun;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class PlayerSetup : MonoBehaviourPunCallbacks
 {
+    [Header("References")]
     public GameObject playerCamera;
     private GameUIManager gameUIManager;
 
+    [Header("UI")]
     public int score = 0;
     private TMP_Text scoreText;
     private TMP_Text playerNameText;
-
 
     private void Start()
     {
         gameUIManager = FindObjectOfType<GameUIManager>();
 
+        // Her oyuncunun kendi kamerasini aktif et
         if (photonView.IsMine)
         {
             playerCamera.SetActive(true);
@@ -27,6 +26,8 @@ public class PlayerSetup : MonoBehaviourPunCallbacks
         {
             playerCamera.SetActive(false);
         }
+        
+        // Baslangicta skoru ayarla
         UpdateScoreText();
     }
 
@@ -53,13 +54,15 @@ public class PlayerSetup : MonoBehaviourPunCallbacks
             UpdateScoreText();
         }
     }
+
     private void UpdateScoreText()
     {
         if (scoreText != null)
         {
             scoreText.text = "Score: " + score;
         }
-        // UI'deki skoru güncelle
+
+        // UI'deki skoru guncelle
         if (gameUIManager != null)
         {
             gameUIManager.UpdatePlayerScore(photonView.Owner.ActorNumber, score);

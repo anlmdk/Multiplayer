@@ -524,7 +524,6 @@ MonoBehaviour:
   runSpeed: 4
   rotationSpeed: 4
   jumpForce: 7
-  isGrounded: 0
 --- !u!114 &5538823617168645063
 MonoBehaviour:
   m_ObjectHideFlags: 0

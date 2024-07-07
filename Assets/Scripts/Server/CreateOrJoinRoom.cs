@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using TMPro;
@@ -19,8 +17,9 @@ public class CreateOrJoinRoom : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
-        // Oda ismi ve maksimum oyuncu sayýsýný belirtiyoruz
+        // Oda ismi ve maksimum oyuncu sayisini belirtiyoruz
         string roomName = createInput.text;
+
         if (string.IsNullOrWhiteSpace(roomName))
         {
             Debug.Log("Oda ismi girilmedi.");
@@ -32,11 +31,13 @@ public class CreateOrJoinRoom : MonoBehaviourPunCallbacks
         roomOptions.MaxPlayers = maxPlayers;
 
         PhotonNetwork.CreateRoom(roomName, roomOptions);
-        Debug.Log("Oda oluþturuldu: " + roomName);
+        Debug.Log("Oda olusturuldu: " + roomName);
     }
+
     public void JoinRoom()
     {
         string roomName = joinInput.text;
+
         if (string.IsNullOrWhiteSpace(roomName))
         {
             Debug.Log("Oda ismi girilmedi.");
@@ -45,36 +46,45 @@ public class CreateOrJoinRoom : MonoBehaviourPunCallbacks
         }
 
         PhotonNetwork.JoinRoom(roomName);
-        Debug.Log("Odaya katýlýnýyor: " + roomName);
+        Debug.Log("Odaya katiliniyor: " + roomName);
     }
+
     public override void OnJoinedRoom()
     {
         isRoomJoined = true;
 
         PhotonNetwork.LoadLevel("Game");
 
-        Debug.Log("Oyuna katýldý.");
+        Debug.Log("Oyuna katildi.");
     }
+
     public void LeaveLobby()
     {
         PhotonNetwork.LeaveLobby();
-        Debug.Log("Lobiden çýkýlýyor...");
+
+        Debug.Log("Lobiden cikiliyor...");
+
         errorManager.ShowErrorMessage("Lobiden çýkýlýyor...");
     }
+
     public override void OnLeftLobby()
     {
-        Debug.Log("Lobiden çýkýldý.");
+        Debug.Log("Lobiden cikildi.");
+
         PhotonNetwork.LoadLevel("MainMenu");
     }
+
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        Debug.LogError("Oda oluþturulamadý: " + message);
+        Debug.LogError("Oda olusturulamadi: " + message);
+
         errorManager.ShowErrorMessage("Oda oluþturulamadý.");
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
-        Debug.LogError("Oda mevcut deðil." + message);
+        Debug.LogError("Oda mevcut degil." + message);
+
         errorManager.ShowErrorMessage("Oda mevcut deðil.");
     }
 }

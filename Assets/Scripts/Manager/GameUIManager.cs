@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
@@ -11,6 +10,7 @@ public class GameUIManager : MonoBehaviourPunCallbacks
 
     private static int playerCount = 0;
 
+    // Oyuncularin datasini saklayabilmek icin sozluk olustur
     private Dictionary<int, GameObject> playerUIDictionary = new Dictionary<int, GameObject>();
 
     float xPosition;
@@ -36,7 +36,7 @@ public class GameUIManager : MonoBehaviourPunCallbacks
     {
         if (playerUIDictionary.ContainsKey(playerID))
         {
-            Debug.LogWarning($"Player UI for player {playerID} is already created.");
+            Debug.LogWarning($"Player UI player icin {playerID} zaten olusturulmus.");
             return;
         }
 
@@ -44,13 +44,13 @@ public class GameUIManager : MonoBehaviourPunCallbacks
 
         if (playerUIInstance == null)
         {
-            Debug.LogError("playerUI prefab could not be loaded from Resources.");
+            Debug.LogError("Player UI Resources dosyasi uzerinden yuklenemedi.");
             return;
         }
 
         if (gamePanel == null)
         {
-            Debug.LogError("gamePanel is not assigned.");
+            Debug.LogError("GamePanel atanmamis.");
             return;
         }
 
@@ -75,12 +75,12 @@ public class GameUIManager : MonoBehaviourPunCallbacks
 
         if (playerIDText == null)
         {
-            Debug.LogError("PlayerIDText component could not be found in the playerUI prefab.");
+            Debug.LogError("PlayerIDText bileseni playerUI prefabinda bulunamadi.");
             return;
         }
         if (scoreText == null)
         {
-            Debug.LogError("ScoreText component could not be found in the playerUI prefab.");
+            Debug.LogError("ScoreText bileseni playerUI prefabinda bulunamadi.");
             return;
         }
 

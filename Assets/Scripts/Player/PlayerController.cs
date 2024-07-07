@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
@@ -21,11 +20,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] private float rotationSpeed = 4f;
     [SerializeField] private float jumpForce = 5f;
 
+    [Header("InputAxis")]
     float horizontalInput;
     float verticalInput;
 
     [Header("Bools")]
-    public  bool isGrounded = true;
+    private  bool isGrounded = true;
     private bool isRunning;
     private bool isHandShaking;
     private bool isMovingBackwards;
@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         rb = GetComponent<Rigidbody>();
         view = GetComponent<PhotonView>();
     }
+
     private void Update()
     {
         if (view.IsMine)
@@ -51,6 +52,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
         }
     }
+
     private void FixedUpdate()
     {
         if (view.IsMine && !isHandShaking)
@@ -58,16 +60,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
             HandleMovement();
         }
     }
+
     private void HandleMovement()
     {
-        // Movement input 
-
+        // Hareket input degerlerini alma
         Vector3 input = inputHandler.GetMovement();
 
         horizontalInput = input.x;
         verticalInput = input.y;
-
-        // Movement
 
         moveDirection = setup.playerCamera.transform.forward * verticalInput;
         moveDirection += setup.playerCamera.transform.right * horizontalInput;
@@ -75,23 +75,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
         moveDirection.y = 0;
         moveDirection = moveDirection * walkSpeed;
 
-        // Geri hareket kontrolü
+        // Geri hareket kontrolu
         isMovingBackwards = verticalInput < 0;
 
         // Run
         isRunning = inputHandler.GetRun();
 
+        // Karakterin hareketi
         Vector3 movement = moveDirection * (isRunning ? runSpeed : walkSpeed);
         rb.velocity = new Vector3(movement.x, rb.velocity.y, movement.z);
 
         // Karakterin saga ve sola donmesi
-
         HandleRotation();
 
         // Hareket animasyonu
         anim.SetFloat("Speed", moveDirection.magnitude);
         anim.SetBool("isRunning", isRunning);
     }
+
     public void HandleRotation()
     {
         Vector3 targetDirection = Vector3.zero;
@@ -106,9 +107,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             targetDirection = transform.forward;
         }
 
+        // Geri giderken yonu tersine cevir
         if (isMovingBackwards)
         {
-            targetDirection = -targetDirection; // Geri giderken yönü tersine çevir
+            targetDirection = -targetDirection;
         }
 
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
@@ -116,6 +118,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         transform.rotation = playerRotation;
     }
+
+    //Zıplama methodu
     private void HandleJump()
     {
         if (inputHandler.GetJump() && isGrounded)
@@ -123,27 +127,33 @@ public class PlayerController : MonoBehaviourPunCallbacks
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
+
     [PunRPC]
     public void SetHandleShakeAnimationRPC()
     {
         anim.SetTrigger("handShake");
     }
+
+    // El sallama
     public void HandleHandShake()
     {
         isHandShaking = true;
         view.RPC("SetHandleShakeAnimationRPC", RpcTarget.All);
         StartCoroutine(EndHandShake());
     }
+
     private IEnumerator EndHandShake()
     {
         yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length);
         isHandShaking = false;
     }
+
     public void OnGroundCollisionEnter()
     {
         isGrounded = true;
         anim.SetBool("isJumping", false);
     }
+
     public void OnGroundCollisionExit() 
     {
         isGrounded = false;

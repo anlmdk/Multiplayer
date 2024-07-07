@@ -1,5 +1,4 @@
 using Photon.Pun;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -47,6 +46,7 @@ public class PickUpAndDrop : MonoBehaviourPunCallbacks, IPunObservable
             Vector3 raycastOrigin = cam.transform.position + raycastOffset;
             if (Physics.Raycast(raycastOrigin, cam.transform.forward, out hit, range, pickupLayerMask))
             {
+                // Tutulan obje bos ise
                 if (heldObject == null)
                 {
                     PhotonView objectPhotonView = hit.collider.gameObject.GetComponent<PhotonView>();
@@ -139,7 +139,7 @@ public class PickUpAndDrop : MonoBehaviourPunCallbacks, IPunObservable
         Gizmos.color = Color.red;
         Gizmos.DrawRay(characterEyePosition, characterEyeForwardDirection * range);
     }
-    public void AddObjectToPickableList(int viewID) // Bu metodu ekleyin
+    public void AddObjectToPickableList(int viewID)
     {
         if (!pickableObjects.Contains(viewID))
         {
@@ -147,7 +147,7 @@ public class PickUpAndDrop : MonoBehaviourPunCallbacks, IPunObservable
         }
     }
 
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) // Bu metodu ekleyin
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {

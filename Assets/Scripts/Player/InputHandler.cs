@@ -1,7 +1,3 @@
-using Photon.Realtime;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,14 +8,17 @@ public class InputHandler : MonoBehaviour
     private PickUpAndDrop pickUpAndDrop;
     private CreateAndDestroy createAndDestroy;
 
+    [Header("MovementActions")]
     private InputAction movementAction;
     private InputAction jumpAction;
     private InputAction runAction;
 
+    [Header("CreateActions")]
     private InputAction createObjectAction;
     private InputAction pickUpOrDropObjectAction;
     private InputAction destroyObjectAction;
 
+    [Header("EnjoyableActions")]
     private InputAction handShakeAction;
 
     private bool isPickUpOrDropObject = false;
